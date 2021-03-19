@@ -15,13 +15,7 @@ function App() {
   const [pc, setPc] = useState();
   const videoLocalRef = useRef();
   const videoRemoteRef = useRef();
-  const videoMiddleRef = useRef();
-  // const socket = io("http://localhost:5000", {
-  //   withCredentials: true,
-  //   extraHeaders: {
-  //     "my-custom-header": "abcd",
-  //   },
-  // });
+
   const socket = io("http://localhost:5000");
   socket.connect();
   useEffect(() => {
