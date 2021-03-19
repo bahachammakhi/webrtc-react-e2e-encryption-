@@ -1,28 +1,41 @@
 const express = require("express");
-const path = require("path");
-const fs = require("fs");
 const http = require("http");
-const https = require("https");
-const sio = require("socket.io");
-const favicon = require("serve-favicon");
+const cors = require("cors");
+// const sio = require("socket.io");
 const compression = require("compression");
 
 const app = express(),
-  port = process.env.PORT || 3000,
+  port = process.env.PORT || 5000,
   server = http.createServer(app).listen(port);
+app.use(cors());
 
-io = sio(server);
+const io = require("socket.io")(server, {
+  cors: { origin: "*" },
+  handlePreflightRequest: (req, res) => {
+    const headers = {
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
+      "Access-Control-Allow-Origin": req.headers.origin, //or the specific origin you want to give access to,
+      "Access-Control-Allow-Credentials": true,
+    };
+    res.writeHead(200, headers);
+    res.end();
+  },
+});
+
 // compress all requests
+
 app.use(compression());
 
 // Switch off the default 'X-Powered-By: Express' header
 app.disable("x-powered-by");
 io.sockets.on("connection", (socket) => {
+  console.log("connected");
   let room = "";
   // sending to all clients in the room (channel) except sender
-  socket.on("message", (message) =>
-    socket.broadcast.to(room).emit("message", message)
-  );
+  socket.on("message", (message) => {
+    console.log("message type", message.type);
+    socket.broadcast.emit("message", message);
+  });
   socket.on("find", () => {
     const url = socket.request.headers.referer.split("/");
     room = url[url.length - 1];
