@@ -1,6 +1,8 @@
 const express = require("express");
 const http = require("http");
+const path = require("path");
 const cors = require("cors");
+// const favicon = require("serve-favicon");
 // const sio = require("socket.io");
 const compression = require("compression");
 
@@ -25,9 +27,9 @@ const io = require("socket.io")(server, {
 // compress all requests
 
 app.use(compression());
-app.use(express.static(path.join(__dirname, "../client/build")));
-app.use((req, res) => res.sendFile(__dirname + "../client/build/index.html"));
-app.use(favicon("../client/build/favicon.ico"));
+app.use(express.static(path.join(__dirname, "/client/build")));
+app.use((req, res) => res.sendFile(__dirname + "/client/build/index.html"));
+// app.use(favicon("../client/build/favicon.ico"));
 
 // Switch off the default 'X-Powered-By: Express' header
 app.disable("x-powered-by");
