@@ -69,7 +69,7 @@ io.sockets.on("connection", (socket) => {
   socket.on("reject", () => socket.emit("full"));
   socket.on("leave", () => {
     // sending to all clients in the room (channel) except sender
-    socket.broadcast.to(room).emit("hangup");
-    socket.leave(room);
+    socket.broadcast.emit("hangup");
+    socket.leave();
   });
 });

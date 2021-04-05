@@ -10,10 +10,13 @@ import {
 } from "./utils/mediaTransformers";
 import { setCryptoKey } from "./utils/encryptionKeyManagment";
 import "./App.css";
+import Communication from "./components/Communication";
 const worker = new Worker("/worker.js", { name: "E2EE worker" });
 function App() {
   const [pc, setPc] = useState();
   const videoLocalRef = useRef();
+  const [established, setEstablished] = useState("initial");
+
   const videoRemoteRef = useRef();
 
   const socket = io("http://localhost:5000");
@@ -22,8 +25,14 @@ function App() {
     checkInsertableSupport();
     start(localStreamRecieved);
     socket.on("message", onMessage);
+    socket.on("hangup", hangup);
+
     window.worker = worker;
     setTimeout(() => call(), 5000);
+    return () => {
+      videoLocalRef.getVideoTracks()[0].stop();
+      socket.emit("leave");
+    };
   }, []);
 
   function setDescription(offer) {
@@ -83,6 +92,7 @@ function App() {
     console.log("Received remote stream");
     remoteStream = stream;
     videoRemoteRef.current.srcObject = stream;
+    setEstablished("established");
   }
 
   function call() {
@@ -124,23 +134,29 @@ function App() {
     console.log("Ending call");
 
     startToEnd.close();
+    setEstablished("");
   }
 
   return (
-    <div id="container">
-      <h1>
-        <a href="//webrtc.github.io/samples/" title="WebRTC samples homepage">
-          WebRTC samples
-        </a>{" "}
-        <span>Peer connection end to end encryption</span>
-      </h1>
-      <span id="banner"></span>
-      <h2>Sender and receiver</h2>
+    <div id="container" className={`${established} videoContainer`}>
+      <Communication />
       <div id="videos">
-        Sender and receiver
-        <br />
-        <video id="video1" ref={videoLocalRef} playsInline autoPlay muted />
-        <video id="video2" ref={videoRemoteRef} playsInline autoPlay muted />
+        <video
+          className="local-video"
+          id="video1"
+          ref={videoLocalRef}
+          playsInline
+          autoPlay
+          muted
+        />
+        <video
+          className="remote-video"
+          id="video2"
+          ref={videoRemoteRef}
+          playsInline
+          autoPlay
+          muted
+        />
       </div>
       <br />
       Crypto key:{" "}
@@ -149,25 +165,6 @@ function App() {
         id="crypto-key"
         onChange={(e) => setCryptoKey(e.target.value)}
       />
-      <div id="buttons">
-        <button onClick={() => start(localStreamRecieved)} id="start">
-          Start
-        </button>
-        <button onClick={() => call()} id="call">
-          Call
-        </button>
-        <button id="hangup" onClick={() => hangup()}>
-          Hang Up
-        </button>
-      </div>
-      <div id="status"></div>
-      <a
-        href="https://github.com/webrtc/samples/tree/gh-pages/src/content/insertable-streams/endtoend-encryption"
-        title="View source for this page on GitHub"
-        id="viewSource"
-      >
-        View source on GitHub
-      </a>
     </div>
   );
 }
