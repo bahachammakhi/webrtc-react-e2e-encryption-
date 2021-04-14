@@ -2,11 +2,11 @@
  * Manage all media devices
  */
 class MediaDevice {
-  stream: any;
+  stream;
   /**
    * Start media devices and send stream
    */
-  start(addToLocalStream: any) {
+  start(addToLocalStream) {
     const constraints = {
       video: {
         facingMode: "user",
@@ -38,10 +38,10 @@ class MediaDevice {
    * @param {String} type - Type of the device
    * @param {Boolean} [on] - State of the device
    */
-  toggle(type: any, on: any) {
+  toggle(type, on) {
     const len = arguments.length;
     if (this.stream) {
-      this.stream[`get${type}Tracks`]().forEach((track: any) => {
+      this.stream[`get${type}Tracks`]().forEach((track) => {
         const state = len === 2 ? on : !track.enabled;
         // _.set(track, "enabled", state);
       });
@@ -54,7 +54,7 @@ class MediaDevice {
    */
   stop() {
     if (this.stream) {
-      this.stream.getTracks().forEach((track: any) => track.stop());
+      this.stream.getTracks().forEach((track) => track.stop());
     }
     return this;
   }
