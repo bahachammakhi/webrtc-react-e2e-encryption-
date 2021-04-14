@@ -1,7 +1,8 @@
-const express = require("express");
-const http = require("http");
-const path = require("path");
-const cors = require("cors");
+import express from "express";
+import http from "http";
+import path from "path";
+import cors from "cors";
+import { find } from "./src/events/find";
 // const favicon = require("serve-favicon");
 // const sio = require("socket.io");
 const compression = require("compression");
@@ -37,17 +38,28 @@ io.sockets.on("connection", (socket) => {
   console.log("connected");
   let room = "";
   // sending to all clients in the room (channel) except sender
-  socket.on("message", (message) => {
-    console.log("message type", message.type);
-    socket.broadcast.emit("message", message);
+  socket.on("join", (roomID) => {
+    console.log(`Socket ${socket.id} joining ${roomID}`);
+    room = roomID;
+    socket.join(roomID);
+
+    socket.to(roomID).emit("init", room);
   });
-  socket.on("find", () => {
-    const url = socket.request.headers.referer.split("/");
-    room = url[url.length - 1];
+
+  socket.on("text", (text) => {
+    socket.to(room).emit("text", text);
+  });
+  socket.on("message", (message) => {
+    // console.log("message type", message.type, message);
+    socket.to(room).emit("message", message);
+  });
+  socket.on("find", (room) => {
+    room = room;
     const sr = io.sockets.adapter.rooms[room];
     if (sr === undefined) {
       // no room with such name is found so create it
       socket.join(room);
+      console.log("Room created");
       socket.emit("create");
     } else if (sr.length === 1) {
       socket.emit("join");
@@ -69,7 +81,8 @@ io.sockets.on("connection", (socket) => {
   socket.on("reject", () => socket.emit("full"));
   socket.on("leave", () => {
     // sending to all clients in the room (channel) except sender
-    socket.broadcast.emit("hangup");
-    socket.leave();
+    console.log("leaved");
+    socket.broadcast.to(room).emit("hangup");
+    socket.leave(room);
   });
 });
