@@ -1,4 +1,3 @@
-
 const express = require("express");
 const http = require("http");
 const path = require("path");
@@ -7,10 +6,10 @@ const cors = require("cors");
 // const sio = require("socket.io");
 const compression = require("compression");
 
-const app = express()
+const app = express();
 app.use(cors());
- const port = process.env.PORT || 5000,
-  const server = http.createServer(app).listen(port);
+const port = process.env.PORT || 5000;
+const server = http.createServer(app).listen(port);
 
 const io = require("socket.io")(server, {
   cors: { origin: "*" },
