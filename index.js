@@ -1,8 +1,8 @@
-import express from "express";
-import http from "http";
-import path from "path";
-import cors from "cors";
-import { find } from "./src/events/find";
+
+const express = require("express");
+const http = require("http");
+const path = require("path");
+const cors = require("cors");
 // const favicon = require("serve-favicon");
 // const sio = require("socket.io");
 const compression = require("compression");
