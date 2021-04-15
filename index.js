@@ -46,11 +46,12 @@ io.sockets.on("connection", (socket) => {
   });
 
   socket.on("text", (text) => {
+ text.from = "external";
     socket.to(room).emit("text", text);
   });
   socket.on("message", (message) => {
     // console.log("message type", message.type, message);
-    socket.to(room).emit("message", message);
+    socket.to(room).emit("message", message);;
   });
   socket.on("find", (room) => {
     room = room;
